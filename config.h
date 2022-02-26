@@ -1,18 +1,20 @@
+#include <X11/XF86keysym.h>
+
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const unsigned int systraypinning = 0;   /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
-static const unsigned int systrayonleft = 1;   	/* 0: systray in the right corner, >0: systray on left of status text */
+static const unsigned int systrayonleft = 0;   	/* 0: systray in the right corner, >0: systray on left of status text */
 static const unsigned int systrayspacing = 2;   /* systray spacing */
 static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display systray on the first monitor, False: display systray on the last monitor*/
 static const int showsystray        = 1;     /* 0 means no systray */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const int focusonwheel       = 0;
-static const char *fonts[]          = { "monospace:size=12", "Noto Sans CJK SC:size=12" };
-static const char dmenufont[]       = "monospace:size=10";
+static const char *fonts[]          = { "monospace:size=12", "文泉驿等宽微米黑:size=12" };
+static const char dmenufont[]       = "monospace:size=12";
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
@@ -47,6 +49,7 @@ static const Rule rules[] = {
 static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
+static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
@@ -73,43 +76,59 @@ static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont,
 static const char *termcmd[]  = { "alacritty", NULL };
 static const char *screenshotcmd[]  = { "flameshot", "gui", NULL };
 
+static const char *upvol[]   = { "/home/leafor/scripts/vol-up.sh",  NULL };
+static const char *downvol[] = { "/home/leafor/scripts/vol-down.sh",  NULL };
+static const char *mutevol[] = { "/home/leafor/scripts/vol-toggle.sh",  NULL };
+
 static Key keys[] = {
-	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
-	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY|ShiftMask,             XK_s,      spawn,          {.v = screenshotcmd } },
-	{ MODKEY,                       XK_b,      togglebar,      {0} },
-	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
-	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
-	// { MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
-	// { MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
-	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
-	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
-	{ MODKEY,                       XK_m, zoom,           {0} },
-	// { MODKEY,                       XK_Tab,    view,           {0} },
-	{ MODKEY,             XK_q,      killclient,     {0} },
-	// { MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
-	// { MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
-	// { MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
-	{ MODKEY,           XK_f, cyclelayout,    {.i = +1 } },
-	// { MODKEY,                       XK_f,  setlayout,      {0} },
-	{ MODKEY|ShiftMask,             XK_f,  togglefloating, {0} },
-	{ MODKEY,                       XK_parenright,      view,           {.ui = ~0 } },
-	{ MODKEY|ShiftMask,             XK_parenright,      tag,            {.ui = ~0 } },
-	// { MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
-	// { MODKEY,                       XK_period, focusmon,       {.i = +1 } },
-	// { MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
-	// { MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
-	TAGKEYS(                        XK_less,                      0)
-	TAGKEYS(                        XK_greater,                      1)
-	TAGKEYS(                        XK_bracketleft,                      2)
-	TAGKEYS(                        XK_bracketright,                      3)
-	TAGKEYS(                        XK_numbersign,                      4)
-	TAGKEYS(                        XK_at,                      5)
-	TAGKEYS(                        XK_braceleft,                      6)
-	TAGKEYS(                        XK_braceright,                      7)
-	TAGKEYS(                        XK_parenleft,                      8)
-	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+	/* modifier            key                      function        argument */
+	{ MODKEY|ShiftMask,    XK_q,                    quit,           {0} },
+	{ MODKEY,              XK_d,                    spawn,          {.v = dmenucmd } },
+	{ MODKEY,              XK_Return,               spawn,          {.v = termcmd } },
+	{ MODKEY|ShiftMask,    XK_s,                    spawn,          {.v = screenshotcmd } },
+	{ 0,                   XF86XK_AudioLowerVolume, spawn,          {.v = downvol } },
+	{ 0,                   XF86XK_AudioMute,        spawn,          {.v = mutevol } },
+	{ 0,                   XF86XK_AudioRaiseVolume, spawn,          {.v = upvol   } },
+	{ MODKEY,              XK_b,                    togglebar,      {0} },
+	{ MODKEY,              XK_j,                    focusstack,     {.i = +1 } },
+	{ MODKEY,              XK_k,                    focusstack,     {.i = -1 } },
+	// { MODKEY,           XK_i,                    incnmaster,     {.i = +1 } },
+	// { MODKEY,           XK_d,                    incnmaster,     {.i = -1 } },
+	{ MODKEY,              XK_h,                    setmfact,       {.f = -0.05} },
+	{ MODKEY,              XK_l,                    setmfact,       {.f = +0.05} },
+	{ MODKEY,              XK_m,                    zoom,           {0} },
+	// { MODKEY,           XK_Tab,                  view,           {0} },
+	{ MODKEY,              XK_q,                    killclient,     {0} },
+	// { MODKEY,           XK_t,                    setlayout,      {.v = &layouts[0]} },
+	// { MODKEY,           XK_f,                    setlayout,      {.v = &layouts[1]} },
+	// { MODKEY,           XK_m,                    setlayout,      {.v = &layouts[2]} },
+	{ MODKEY,              XK_f,                    cyclelayout,    {.i = +1 } },
+	// { MODKEY,           XK_f,                    setlayout,      {0} },
+	{ MODKEY|ShiftMask,    XK_f,                    togglefloating, {0} },
+	{ MODKEY,              XK_0,                    view,           {.ui = ~0 } },
+	{ MODKEY|ShiftMask,    XK_0,                    tag,            {.ui = ~0 } },
+	// { MODKEY,           XK_comma,                focusmon,       {.i = -1 } },
+	// { MODKEY,           XK_period,               focusmon,       {.i = +1 } },
+	// { MODKEY|ShiftMask, XK_comma,                tagmon,         {.i = -1 } },
+	// { MODKEY|ShiftMask, XK_period,               tagmon,         {.i = +1 } },
+	// TAGKEYS(                        XK_less,                      0)
+	// TAGKEYS(                        XK_greater,                      1)
+	// TAGKEYS(                        XK_bracketleft,                      2)
+	// TAGKEYS(                        XK_bracketright,                      3)
+	// TAGKEYS(                        XK_numbersign,                      4)
+	// TAGKEYS(                        XK_at,                      5)
+	// TAGKEYS(                        XK_braceleft,                      6)
+	// TAGKEYS(                        XK_braceright,                      7)
+	// TAGKEYS(                        XK_parenleft,                      8)
+	TAGKEYS(                        XK_1,                      0)
+	TAGKEYS(                        XK_2,                      1)
+	TAGKEYS(                        XK_3,                      2)
+	TAGKEYS(                        XK_4,                      3)
+	TAGKEYS(                        XK_5,                      4)
+	TAGKEYS(                        XK_6,                      5)
+	TAGKEYS(                        XK_7,                      6)
+	TAGKEYS(                        XK_8,                      7)
+	TAGKEYS(                        XK_9,                      8)
 };
 
 /* button definitions */
