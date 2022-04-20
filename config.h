@@ -89,6 +89,8 @@ static Key keys[] = {
 	{ 0,                   XF86XK_AudioLowerVolume, spawn,          {.v = downvol } },
 	{ 0,                   XF86XK_AudioMute,        spawn,          {.v = mutevol } },
 	{ 0,                   XF86XK_AudioRaiseVolume, spawn,          {.v = upvol   } },
+	{ MODKEY,              XK_comma,                spawn,          {.v = downvol } },
+	{ MODKEY,              XK_period,               spawn,          {.v = upvol   } },
 	{ MODKEY,              XK_b,                    togglebar,      {0} },
 	{ MODKEY,              XK_j,                    focusstack,     {.i = +1 } },
 	{ MODKEY,              XK_k,                    focusstack,     {.i = -1 } },
@@ -111,15 +113,6 @@ static Key keys[] = {
 	// { MODKEY,           XK_period,               focusmon,       {.i = +1 } },
 	// { MODKEY|ShiftMask, XK_comma,                tagmon,         {.i = -1 } },
 	// { MODKEY|ShiftMask, XK_period,               tagmon,         {.i = +1 } },
-	// TAGKEYS(                        XK_less,                      0)
-	// TAGKEYS(                        XK_greater,                      1)
-	// TAGKEYS(                        XK_bracketleft,                      2)
-	// TAGKEYS(                        XK_bracketright,                      3)
-	// TAGKEYS(                        XK_numbersign,                      4)
-	// TAGKEYS(                        XK_at,                      5)
-	// TAGKEYS(                        XK_braceleft,                      6)
-	// TAGKEYS(                        XK_braceright,                      7)
-	// TAGKEYS(                        XK_parenleft,                      8)
 	TAGKEYS(                        XK_1,                      0)
 	TAGKEYS(                        XK_2,                      1)
 	TAGKEYS(                        XK_3,                      2)
